@@ -22,6 +22,11 @@ public class Engine
 
     private DateTimeOffset _lastUpdate = DateTimeOffset.Now;
 
+    private bool _zoomToggledLastFrame = false;
+    private DateTimeOffset _lastBombTime = DateTimeOffset.MinValue;
+    private readonly TimeSpan _bombCooldown = TimeSpan.FromSeconds(1.5);
+
+
     public Engine(GameRenderer renderer, Input input)
     {
         _renderer = renderer;
@@ -94,6 +99,23 @@ public class Engine
         double right = _input.IsRightPressed() ? 1.0 : 0.0;
         bool isAttacking = _input.IsKeyAPressed() && (up + down + left + right <= 1);
         bool addBomb = _input.IsKeyBPressed();
+        bool zoomKey = _input.IsKeyXPressed();
+        var now = DateTimeOffset.Now;
+
+        //Console.WriteLine($"Pressed keys: B={_input.IsKeyBPressed()}, X={_input.IsKeyXPressed()}");
+
+        if (zoomKey && !_zoomToggledLastFrame)
+        {
+            Console.WriteLine("X key pressed — toggling zoom");
+            _renderer.Camera.ToggleZoom();
+        }
+        _zoomToggledLastFrame = zoomKey;
+
+        if (addBomb && (now - _lastBombTime) >= _bombCooldown)
+        {
+            AddBomb(_player.Position.X, _player.Position.Y, false);
+            _lastBombTime = now;
+        }
 
         _player.UpdatePosition(up, down, left, right, 48, 48, msSinceLastFrame);
         if (isAttacking)
@@ -102,11 +124,6 @@ public class Engine
         }
         
         _scriptEngine.ExecuteAll(this);
-
-        if (addBomb)
-        {
-            AddBomb(_player.Position.X, _player.Position.Y, false);
-        }
     }
 
     public void RenderFrame()

@@ -122,7 +122,7 @@ public class Engine
         {
             _player.Attack();
         }
-        
+
         _scriptEngine.ExecuteAll(this);
     }
 
@@ -166,7 +166,7 @@ public class Engine
             var deltaY = Math.Abs(_player.Position.Y - tempGameObject.Position.Y);
             if (deltaX < 32 && deltaY < 32)
             {
-                _player.GameOver();
+                _player.TakeDamage(20); 
             }
         }
 
@@ -231,5 +231,27 @@ public class Engine
 
         TemporaryGameObject bomb = new(spriteSheet, 2.1, (worldCoords.X, worldCoords.Y));
         _gameObjects.Add(bomb.Id, bomb);
+    }
+    
+    public void RenderHealthBar()
+    {
+        if (_player == null) return;
+
+        int barWidth = 200;
+        int barHeight = 20;
+        int x = 10;
+        int y = 10;
+
+        int healthWidth = (int)(barWidth * (_player.Health / 100.0));
+
+        // Background (gray)
+        var bgRect = new Rectangle<int>(x, y, barWidth, barHeight);
+        _renderer.SetDrawColor(100, 100, 100, 255);
+        _renderer.RenderScreenRect(bgRect);
+
+        // Health (red)
+        var healthRect = new Rectangle<int>(x, y, healthWidth, barHeight);
+        _renderer.SetDrawColor(200, 0, 0, 255);
+        _renderer.RenderScreenRect(healthRect);
     }
 }

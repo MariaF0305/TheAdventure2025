@@ -117,7 +117,7 @@ public class PlayerObject : RenderableGameObject
         else
         {
             newState = PlayerState.Move;
-            
+
             if (y < Position.Y && newDirection != PlayerStateDirection.Up)
             {
                 newDirection = PlayerStateDirection.Up;
@@ -146,4 +146,16 @@ public class PlayerObject : RenderableGameObject
 
         Position = (x, y);
     }
+    
+    public int Health { get; private set; } = 100;
+
+    public void TakeDamage(int amount)
+    {
+        Health -= amount;
+        if (Health <= 0)
+        {
+            GameOver();
+        }
+    }
+
 }
